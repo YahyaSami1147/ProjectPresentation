@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MD5 Brute Force Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .warning-badge {
+            background: rgba(255, 152, 0, 0.95);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: monospace;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result-success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result-error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result-info {
+            background: #d1ecf1;
+            border: 2px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-details {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-family: monospace;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+        }
+
+        .result-value {
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sample-hashes {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .sample-hash-item {
+            background: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .sample-hash-text {
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .info-box strong {
+            color: #014361;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-unlock-alt"></i> MD5 Brute Force Tool</h1>
+            <p>Crack MD5 hashes using brute force algorithm</p>
+            <div class="warning-badge">
+                <i class="fas fa-exclamation-triangle"></i> Demo Purposes Only
+            </div>
+        </div>
+
+        <div class="main-card">
+            <h2 class="section-title">
+                <i class="fas fa-key"></i> Hash Cracker
+            </h2>
+
+            <div class="form-group">
+                <label for="hashInput">
+                    <i class="fas fa-hashtag"></i> Enter MD5 Hash (32 characters)
+                </label>
+                <input type="text" id="hashInput" placeholder="e.g., 4c72c1e97480da5cd745189b6f061a00" maxlength="32">
+            </div>
+
+            <div class="form-group">
+                <label for="maxLength">
+                    <i class="fas fa-ruler"></i> Maximum Password Length
+                </label>
+                <input type="number" id="maxLength" value="5" min="1" max="8">
+                <small style="color: #666; display: block; margin-top: 5px;">
+                    <i class="fas fa-info-circle"></i> Default: 5 characters (Recommended for demo)
+                </small>
+            </div>
+
+            <button class="btn btn-primary" id="crackBtn" onclick="crackHash()">
+                <i class="fas fa-unlock"></i> Start Brute Force Attack
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="color: #667eea; font-weight: 600;">Cracking in progress... Please wait</p>
+                <p style="color: #666; font-size: 0.9rem;">This may take a few moments</p>
+            </div>
+
+            <div class="result-box" id="resultBox"></div>
+        </div>
+
+        <div class="main-card">
+            <h2 class="section-title">
+                <i class="fas fa-flask"></i> Sample Hashes for Testing
+            </h2>
+            <p style="color: #666; margin-bottom: 15px;">
+                These are MD5 hashes from your vulnerable website. Click to copy and test!
+            </p>
+
+            <div class="sample-hashes">
+                <div class="sample-hash-item">
+                    <div>
+                        <strong>Password: abc12</strong><br>
+                        <span class="sample-hash-text">b2157e7b2ae716a747597717f1efb7a0</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyHash('b2157e7b2ae716a747597717f1efb7a0')">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+
+                <div class="sample-hash-item">
+                    <div>
+                        <strong>Password: test1</strong><br>
+                        <span class="sample-hash-text">5a105e8b9d40e1329780d62ea2265d8a</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyHash('5a105e8b9d40e1329780d62ea2265d8a')">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+
+                <div class="sample-hash-item">
+                    <div>
+                        <strong>Password: 12345</strong><br>
+                        <span class="sample-hash-text">827ccb0eea8a706c4c34a16891f84e7b</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyHash('827ccb0eea8a706c4c34a16891f84e7b')">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+
+                <div class="sample-hash-item">
+                    <div>
+                        <strong>Password: xyz99</strong><br>
+                        <span class="sample-hash-text">33f45041658def78843cba7744f09267</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyHash('33f45041658def78843cba7744f09267')">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong><i class="fas fa-calculator"></i> Brute Force Statistics:</strong>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Character Set</div>
+                        <div class="stat-value">36</div>
+                        <div class="stat-label">a-z, 0-9</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Max Length</div>
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">characters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Combinations</div>
+                        <div class="stat-value">60M</div>
+                        <div class="stat-label">36^5 = 60,466,176</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function crackHash() {
+            const hashInput = document.getElementById('hashInput').value.trim().toLowerCase();
+            const maxLength = parseInt(document.getElementById('maxLength').value);
+            const resultBox = document.getElementById('resultBox');
+            const loading = document.getElementById('loading');
+            const crackBtn = document.getElementById('crackBtn');
+
+            // Validate input
+            if (!hashInput) {
+                showResult('error', 'Please enter an MD5 hash!', null);
+                return;
+            }
+
+            if (hashInput.length !== 32) {
+                showResult('error', 'Invalid MD5 hash! Must be exactly 32 characters.', null);
+                return;
+            }
+
+            // Show loading
+            resultBox.style.display = 'none';
+            loading.style.display = 'block';
+            crackBtn.disabled = true;
+
+            try {
+                const response = await fetch('/crack', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        hash: hashInput,
+                        max_length: maxLength
+                    })
+                });
+
+                const data = await response.json();
+
+                loading.style.display = 'none';
+                crackBtn.disabled = false;
+
+                if (data.success) {
+                    showResult('success', 'Password Cracked Successfully!', data);
+                } else {
+                    showResult('error', data.message || 'Password not found', data);
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                crackBtn.disabled = false;
+                showResult('error', 'Error: ' + error.message, null);
+            }
+        }
+
+        function showResult(type, message, data) {
+            const resultBox = document.getElementById('resultBox');
+            let className = 'result-error';
+            let icon = '<i class="fas fa-times-circle"></i>';
+
+            if (type === 'success') {
+                className = 'result-success';
+                icon = '<i class="fas fa-check-circle"></i>';
+            } else if (type === 'info') {
+                className = 'result-info';
+                icon = '<i class="fas fa-info-circle"></i>';
+            }
+
+            let html = `
+                <div class="result-title">
+                    ${icon} ${message}
+                </div>
+            `;
+
+            if (data) {
+                html += '<div class="result-details">';
+                
+                if (data.password) {
+                    html += `<div class="result-row">
+                        <span class="result-label">Cracked Password:</span>
+                        <span class="result-value" style="font-size: 1.3rem; color: #28a745; font-weight: 700;">${data.password}</span>
+                    </div>`;
+                }
+
+                if (data.hash) {
+                    html += `<div class="result-row">
+                        <span class="result-label">MD5 Hash:</span>
+                        <span class="result-value">${data.hash}</span>
+                    </div>`;
+                }
+
+                if (data.attempts) {
+                    html += `<div class="result-row">
+                        <span class="result-label">Attempts Made:</span>
+                        <span class="result-value">${data.attempts.toLocaleString()}</span>
+                    </div>`;
+                }
+
+                if (data.time_taken) {
+                    html += `<div class="result-row">
+                        <span class="result-label">Time Taken:</span>
+                        <span class="result-value">${data.time_taken} seconds</span>
+                    </div>`;
+                }
+
+                html += '</div>';
+            }
+
+            resultBox.className = 'result-box ' + className;
+            resultBox.innerHTML = html;
+            resultBox.style.display = 'block';
+        }
+
+        function copyHash(hash) {
+            const input = document.getElementById('hashInput');
+            input.value = hash;
+            input.focus();
+            
+            // Show notification
+            showResult('info', 'Hash copied to input field! Click "Start Brute Force Attack" to crack it.', null);
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('hashInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                crackHash();
+            }
+        });
+    </script>
+</body>
+</html>
